@@ -17,11 +17,11 @@ function J = approximate_jacobian(fun,x)
     %setting step size
     h = 1e-6;
 
-    for i = 1:num_inputs
+    for i = (1:length(x))
         %creating e matrices-- [1;0...0], [0;1;0...0]
         e = zeros(num_inputs, 1);
         e(i) = 1;
 
-        J(:, i) = (fun(x + h*e) - fun(x - h*e)) / (2*h);
+        J(i,:) = fun()
     end
 end
