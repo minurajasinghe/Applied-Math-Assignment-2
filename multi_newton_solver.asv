@@ -37,41 +37,52 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     if isfield(solver_params,'numerical_diff')
         numerical_diff = solver_params.numerical_diff;
     end
-    approximate_jacobian(fun, x_guess, dxtol, ftol, dxmax, numerical_diff)
     
-    x_init = x_guess;
+    x = x_guess;
+    max_iter = 100;
+    exit_flag = 1;
 
-    % [fvals,dfdx] = fun(x_guess);
-
-    J = approximate_jacobian(fun,x_guess)
-
-    while abs(f) > ytol
-        % Add break condition for 0 denominator
-        inv_test = J*J'
-        if J == 0
-            break
-        end
-        % Run update step for Newton's Method
-        x1 = x_init - J\f;
-        
-        % Check if difference is sufficiently small to consider a root found
-        
-        if abs(x1 - x_init) < dxtol
-            x = x1;
-            return
+    for i = 1:max_iter
+        if numerical_diff == 1
+            %numerical differentiation
+            f_val = fun(x);
+            J = approximate_jacobian(fun, x);
+        else
+            %analytical provided by function
+            [f_val, J] = fun(x);
         end
 
-        % Update x input for Newton's Method
-        x_init = x1;
+        % --- 4. Early Termination Condition 1: Function value ---
+        % Check if the function's output is already very close to zero.
+        if norm(f_val) < ftol
+            exit_flag = 0; % Success!
+            % disp('Convergence: Function value is close to zero.');
+            break; % Exit the loop
+        end
 
-        % Re-evaluate function and derivative
-        f = fun(x_init);
-        J = approximate_jacobian(fun,x_init);
+        % --- 5. Matrix Inversion Safeguard ---
+        % Check if the Jacobian is singular or ill-conditioned before inverting.
+        if det(J'*J) < 1e-20 % A very small threshold
+            exit_flag = -1; % Failure flag for singular matrix
+            warning('Terminating: Jacobian is singular or near-singular.');
+            break; % Exit the loop
+        end
+
+        % --- 6. Calculate the Newton Step and Update x ---
+        % Solves the system J * delta_X = -f_val
+        delta_X = J \ -f_val;
+        x = x + delta_X;
+
+        % --- 7. Early Termination Condition 2: Step Size ---
+        % Check if the change in x is now negligible.
+        if norm(delta_X) < dxtol
+            exit_flag = 0; % Success!
+            % disp('Convergence: Step size is negligible.');
+            break; % Exit the loop
+        end
     end
 
-
-    if abs(x_next - x_current) < 1e-14 && abs(fvals) < 1e-14
-        x = x_current
-    
+    if exit_flag == 1
+        warning('Solver finished: Maximum number of iterations reached without convergence.');
     end
 end

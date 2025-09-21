@@ -37,42 +37,47 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     if isfield(solver_params,'numerical_diff')
         numerical_diff = solver_params.numerical_diff;
     end
-    % approximate_jacobian(fun, x_guess, dxtol, ftol, dxmax, numerical_diff)
     
-    x_init = x_guess;
+    x = x_guess;
+    max_iter = 100;
+    exit_flag = 1;
 
-    % [fvals,dfdx] = fun(x_guess);
-
-    J = approximate_jacobian(fun,x_guess);
-
-    while abs(f) > ytol
-        % Add break condition for 0 denominator
-        inv_test = det(J*J');
-        if inv_test < 1e-14
-            disp('Matrix inverted, aborting...')
-            break
-        end
-        % Run update step for Newton's Method
-        x1 = x_init - (J\f)*x_init;
-        
-        % Check if difference is sufficiently small to consider a root found
-        
-        if abs(x1 - x_init) < 1e-14
-            x = x1;
-            return
+    for i = 1:max_iter
+        if numerical_diff == 1
+            %numerical differentiation
+            f_val = fun(x);
+            J = approximate_jacobian(fun, x);
+        else
+            %analytical provided by function
+            [f_val, J] = fun(x);
         end
 
-        % Update x input for Newton's Method
-        x_init = x1;
+        % early termination check
+        if norm(f_val) < ftol
+            exit_flag = 0;
+            break;
+        end
 
-        % Re-evaluate function and derivative
-        f = fun(x_init);
-        J = approximate_jacobian(fun,x_init);
+        %check if jacobian is singular
+        if det(J'*J) < 1e-14
+            exit_flag = -1;
+            break;
+        end
+
+        %calc step
+        delta_X = J \ -f_val;
+        x = x + delta_X;
+
+        %chek step size
+        if norm(delta_X) < dxtol
+            exit_flag = 0;
+            break;
+        end
     end
 
-
-    if abs(x_next - x_current) < 1e-14 && abs(fvals) < 1e-14
-        x = x_current
-    
+    if exit_flag == 1
+        warning('Max iter reach without converging.');
+    elseif exit_flag == -1
+        warning('Jacobian is singular or incorrect size.')
     end
 end
