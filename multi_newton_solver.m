@@ -47,7 +47,9 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
 
     while abs(f) > ytol
         % Add break condition for 0 denominator
-        if J == 0
+        inv_test = det(J*J');
+        if inv_test < 1e-14
+            disp('Matrix inverted, aborting...')
             break
         end
         % Run update step for Newton's Method
