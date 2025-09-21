@@ -37,13 +37,13 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     if isfield(solver_params,'numerical_diff')
         numerical_diff = solver_params.numerical_diff;
     end
-    approximate_jacobian(fun, x_guess, dxtol, ftol, dxmax, numerical_diff)
+    % approximate_jacobian(fun, x_guess, dxtol, ftol, dxmax, numerical_diff)
     
     x_init = x_guess;
 
     % [fvals,dfdx] = fun(x_guess);
 
-    J = approximate_jacobian(fun,x_guess)
+    J = approximate_jacobian(fun,x_guess);
 
     while abs(f) > ytol
         % Add break condition for 0 denominator
@@ -53,11 +53,11 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
             break
         end
         % Run update step for Newton's Method
-        x1 = x_init - J\f;
+        x1 = x_init - (J\f)*x_init;
         
         % Check if difference is sufficiently small to consider a root found
         
-        if abs(x1 - x_init) < dxtol
+        if abs(x1 - x_init) < 1e-14
             x = x1;
             return
         end
