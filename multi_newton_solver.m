@@ -38,46 +38,124 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
         numerical_diff = solver_params.numerical_diff;
     end
     
-    x = x_guess;
-    max_iter = 100;
+    X = x_guess;
+    % max_iter = 200;
     exit_flag = 1;
 
-    for i = 1:max_iter
-        if numerical_diff == 1
-            %numerical differentiation
-            f_val = fun(x);
-            J = approximate_jacobian(fun, x);
-        else
-            %analytical provided by function
-            [f_val, J] = fun(x);
-        end
+    dxmin = solver_params.dxmin;
+    ftol = solver_params.ftol;
+    dxmax = solver_params.dxmax;
+    max_iter = solver_params.maxiter;
+    approx = solver_params.approx;
 
-        % early termination check
-        if norm(f_val) < ftol
-            exit_flag = 0;
-            break;
-        end
 
-        %check if jacobian is singular
-        if det(J'*J) < 1e-14
-            exit_flag = -1;
-            break;
-        end
-
-        %calc step
-        delta_X = J \ -f_val;
-        x = x + delta_X;
-
-        %chek step size
-        if norm(delta_X) < dxtol
-            exit_flag = 0;
-            break;
-        end
+    if approx
+        fval = fun(X);
+        J = approx_jacobian01(fun,X)
+    else
+        [fval,J] = fun(X);
     end
+
+    delta_x = 1;
+
+    count = 0;
+
+    while count<max_iter && norm(delta_x)>dxmin && norm(fval) > ftol && norm(delta_x)<dxmax
+        count = count+1;
+
+        if approx
+        fval = fun(X);
+        J = approx_jacobian01(fun,X);
+        else
+        [fval,J] = fun(X);
+        end
+
+        delta_x = -J\fval;
+
+        X = X + delta_x;
+
+    end
+    xroot = X
+    
+    
+    % for i = 1:max_iter
+    %     if numerical_diff == 1
+    %         %numerical differentiation
+    %         f_val = fun(x);
+    %         J = approximate_jacobian(fun, x);
+    %     else
+    %         %analytical provided by function
+    %         [f_val, J] = fun(x);
+    %     end
+    % 
+    %     % early termination check
+    %     if norm(f_val) < ftol
+    %         exit_flag = 0;
+    %         break;
+    %     end
+    % 
+    %     %check if jacobian is singular
+    %     if det(J'*J) < 1e-14
+    %         exit_flag = -1;
+    %         break;
+    %     end
+    % 
+    %     %calc step
+    %     delta_X = J \ -f_val;
+    %     x = x + delta_X;
+    % 
+    %     %chek step size
+    %     if norm(delta_X) < dxtol
+    %         exit_flag = 0;
+    %         break;
+    %     end
+    % end
 
     if exit_flag == 1
         warning('Max iter reach without converging.');
     elseif exit_flag == -1
         warning('Jacobian is singular or incorrect size.')
     end
+end
+
+function J = approx_jacobian01(fun,X)
+
+    f0 = fun(X);
+    J = zeros(length(f0), length(X));
+
+
+    e_n = zeros(length(X),1);
+
+    delta_X = 1e-6;
+
+    for n = 1:length(X)
+        e_n(n) = 1;
+
+
+        f_plus = fun(X+e_n*delta_X);
+        f_minus = fun(X-e_n*delta_X);
+
+        J(:,n) = (f_plus-f_minus) / (2*delta_X);
+
+        e_n(n) = 0;
+    end
+
+end
+
+function [fval, J] = test_function01(X)
+    x1 = X(1); x2 = X(2); x3 = X(3);
+
+    
+    f1 = x1^2 + x2^2 - 6 + x3^5;
+    f2 = x1*x3 + x2 -12;
+    f3 = sin(x1 + x2 + x3);
+
+
+    
+
+    fval = [f1;f2;f3];
+
+    J = [ [2*x1, 2*x2, -5*x3^4];...
+        [x3, 1, x1];...
+        [cos(x1+x2+x3),cos(x1+x2+x3),cos(x1+x2+x3)]];
 end
