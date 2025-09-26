@@ -40,7 +40,7 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     
     X = x_guess;
     % max_iter = 200;
-    exit_flag = 1;
+    exit_flag = 0;
 
     dxmin = solver_params.dxmin;
     ftol = solver_params.ftol;
@@ -56,7 +56,7 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
         [fval,J] = fun(X);
     end
 
-    delta_x = 1;
+    delta_x = -J\fval;
 
     count = 0;
 
@@ -70,7 +70,7 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
         [fval,J] = fun(X);
         end
 
-        delta_x = -J\fval;
+        delta_x = -J\fval
 
         X = X + delta_x;
 
@@ -78,6 +78,9 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     xroot = X;
     disp(xroot)
     
+    if count==max_iter
+        exit_flag = 1;
+    end
     
     % for i = 1:max_iter
     %     if numerical_diff == 1
