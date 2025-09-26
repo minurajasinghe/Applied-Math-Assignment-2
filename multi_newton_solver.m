@@ -70,7 +70,7 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
         [fval,J] = fun(X);
         end
 
-        delta_x = -J\fval
+        delta_x = -J\fval;
 
         X = X + delta_x;
 
@@ -120,7 +120,10 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
     elseif exit_flag == -1
         warning('Jacobian is singular or incorrect size.')
     end
+    x = xroot;
 end
+
+
 
 function J = approx_jacobian01(fun,X)
 

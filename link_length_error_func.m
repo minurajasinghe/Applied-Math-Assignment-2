@@ -20,7 +20,7 @@
 % are connected by the ith link, and d_i is the length of the ith link
 function e_length = link_length_error_func(vertex_coords, leg_params)
 
-    num_links = leg_paras.num_linkages;
+    num_links = leg_params.num_linkages;
 
     e_length = zeros(num_links, 1);
     
