@@ -1,6 +1,5 @@
 function day_work()
-
-    X0 = randn(3,1);
+    X0 = [0.8308;0.5853;0.5497];%randn(3,1);
 
     [~, J_analytical] = test_function01(X0);
     J_numerical = approx_jacobian01(@test_function01,X0);
@@ -53,7 +52,7 @@ function xroot = multinewt(fun,X,solverparams)
 
         if approx
         fval = fun(X);
-        J = approx_jacobian01(fun,X)
+        J = approx_jacobian01(fun,X);
         else
         [fval,J] = fun(X);
         end
