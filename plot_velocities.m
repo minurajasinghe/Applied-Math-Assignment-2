@@ -1,3 +1,4 @@
+%Plots the velocities
 function plot_velocities()
     leg_params = generate_params();
     
@@ -44,6 +45,16 @@ function plot_velocities()
     title('Comparison of dy_{tip}/d\theta');
     xlabel('\theta (radians)');
     ylabel('dy_{tip}/d\theta');
+    legend('Analytical', 'Numerical');
+    grid on;
+
+    figure();
+    plot(theta_values, dxtip_analytical, 'b-', 'LineWidth', 2);
+    hold on;
+    plot(theta_values, dxtip_numerical, 'r--', 'LineWidth', 2);
+    title('Comparison of dx_{tip}/d\theta');
+    xlabel('\theta (radians)');
+    ylabel('dx_{tip}/d\theta');
     legend('Analytical', 'Numerical');
     grid on;
 end
