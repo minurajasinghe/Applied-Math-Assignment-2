@@ -3,7 +3,8 @@ function plot_velocities()
     leg_params = generate_params();
     
     theta_values = linspace(0, 2 * pi, 200);
-    
+    global dxtip_analytical;
+    global dytip_analytical;
     dxtip_analytical = zeros(size(theta_values));
     dytip_analytical = zeros(size(theta_values));
     dxtip_numerical = zeros(size(theta_values));
