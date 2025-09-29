@@ -22,14 +22,24 @@ function animate_strandbeest()
         -50; -50; ...   % Vertex 6
         -50; -100      % Vertex 7
     ];
-    
-    num_rotations = 2;
-    theta_steps = linspace(0, num_rotations * 2 * pi, 200); 
+
+    leg_tip_history = [];
+
+    num_rotations = 10;
+    theta_steps = linspace(0, num_rotations * 2 * pi, (num_rotations *100)); 
+
+    trace_line = plot(NaN, NaN, 'b-', 'LineWidth', 1.5);
     
     for theta = theta_steps
         vertex_coords_root = compute_coords(vertex_coords_guess, leg_params, theta);
         
         update_leg_drawing(vertex_coords_root, leg_drawing, leg_params);
+
+        leg_tip_x = vertex_coords_root(13);
+        leg_tip_y = vertex_coords_root(14);
+
+        leg_tip_history(:, end+1) = [leg_tip_x; leg_tip_y];
+        set(trace_line, 'xdata', leg_tip_history(1,:), 'ydata', leg_tip_history(2,:));
         
         vertex_coords_guess = vertex_coords_root;
         

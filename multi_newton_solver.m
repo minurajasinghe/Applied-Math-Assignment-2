@@ -76,7 +76,7 @@ function [x, exit_flag] = multi_newton_solver(fun,x_guess,solver_params)
 
     end
     xroot = X;
-    disp(xroot)
+    %disp(xroot)
     
     if count==max_iter
         exit_flag = 1;
