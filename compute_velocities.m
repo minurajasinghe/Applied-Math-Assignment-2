@@ -14,7 +14,7 @@ function dVdtheta = compute_velocities(vertex_coords, leg_params, theta)
     
     %compute d1 velocities (determined by crank angle)
     dx1_dtheta = -leg_params.crank_length * sin(theta);
-    dy1_dtheta =  leg_params.crant_length * cos(theta);
+    dy1_dtheta =  leg_params.crank_length * cos(theta);
 
     dx2_dtheta = 0;
     dy2_dtheta = 0;
@@ -30,17 +30,4 @@ function dVdtheta = compute_velocities(vertex_coords, leg_params, theta)
     B = [dx1_dtheta; dy1_dtheta; dx2_dtheta; dy2_dtheta; zeros(leg_params.num_linkages, 1)];
 
     dVdtheta = M \ B;
-
-    %%method 2
-    
-    h = 1e-7;
-
-    coords_from_angle = @(angle) compute_coords(vertex_coords_guess, leg_params, angle);
-
-    %getting coords from two steps
-    V1 = coords_from_angle(theta + h);
-    V2 = coords_from_angle(theta - h);
-
-    %def of derivative
-    dVdtheta_numerical = (V1 - V2) / (2 * h);
 end
